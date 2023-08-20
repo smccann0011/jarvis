@@ -1,25 +1,68 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import "./App.css";
 
-function App() {
+const JarvisClient = () => {
+  const [userMessage, setUserMessage] = useState("");
+  const [chatLog, setChatLog] = useState([]);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatLog]);
+
+  const sendMessage = async () => {
+    if (userMessage.trim() === "") return;
+    setChatLog([...chatLog, { type: "user", text: userMessage }]);
+    setUserMessage("");
+
+    try {
+      console.log("Sending message to server:", userMessage)
+      const response = await axios.post("/api/agent1", {
+        message: userMessage,
+      });
+      console.log("Received response from server:", response)
+      setChatLog([...chatLog, { type: "user", text: userMessage }, { type: "gpt", text: response.data.response }]);
+    } 
+    catch (error) {
+      console.log("Error while sending message:", error);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Jarvis</h1>
       </header>
+      <main>
+        <div className="chat-log">
+          {chatLog.map((message, index) => (
+            <div key={index} className={`chat-message ${message.type}`}>
+              {message.text}
+            </div>
+          ))}
+          <div ref={messagesEndRef}></div>
+        </div>
+        <div className="input-form">
+          <input
+            type="text"
+            value={userMessage}
+            onChange={(e) => setUserMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                sendMessage();
+              }
+            }}
+          />
+          <button onClick={sendMessage}>Send</button>
+        </div>
+      </main>
     </div>
   );
-}
+};
 
-export default App;
+export default JarvisClient;

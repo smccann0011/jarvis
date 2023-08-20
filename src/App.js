@@ -1,3 +1,21 @@
+// Based on https://medium.com/@yuhaocooper/how-to-deploy-react-app-on-aws-lightsail-and-build-your-own-website-d4937c5c8792
+
+// Development (Laptop)
+// cd /Users/smccann/Desktop/CypressLabs/jarvis
+// Make edits
+// npm start
+// When ready to deploy
+// git status 
+// git commit -m "Add Jarvis version"
+// git push origin main  
+
+// Server
+// cd /opt/jarvis
+// sudo git pull origin main
+// sudo npm install
+// sudo npm run build
+// sudo systemctl restart nginx
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css";
